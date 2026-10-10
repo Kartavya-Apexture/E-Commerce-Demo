@@ -2,7 +2,9 @@ import Link from "next/link";
 import Image from "next/image";
 import { Check, Package } from "lucide-react";
 import { notFound } from "next/navigation";
-import { orderByToken } from "@/lib/db";
+import { orderByToken, returns } from "@/lib/db";
+import { OrderTools } from "@/components/customer";
+import { returnEligible } from "@/lib/commerce";
 import { money } from "@/lib/types";
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Your order", referrer: "no-referrer" };
@@ -20,7 +22,7 @@ export default async function Page({
       <span className="confirmation-icon">
         <Check size={30} />
       </span>
-      <p className="eyebrow">A LITTLE SOMETHING TO LOOK FORWARD TO</p>
+      <p className="eyebrow">KING AND QUEEN STORE / ORDER CONFIRMATION</p>
       <h1>
         {order.status === "Cancelled"
           ? "Your demo order was cancelled."
@@ -77,6 +79,10 @@ export default async function Page({
               <dd>{money(order.subtotal)}</dd>
             </div>
             <div>
+              <dt>Discount {order.couponCode || ""}</dt>
+              <dd>−{money(order.discount || 0)}</dd>
+            </div>
+            <div>
               <dt>Delivery</dt>
               <dd>
                 {order.shipping ? money(order.shipping) : "Complimentary"}
@@ -115,6 +121,26 @@ export default async function Page({
           </Link>
         </aside>
       </div>
+      <section className="panel order-history">
+        <h2>Order updates</h2>
+        {order.history?.map((event, i) => (
+          <p key={i}>
+            <strong>{event.status}</strong>
+            <span>
+              {event.at
+                ? new Date(event.at).toLocaleString("en-IN", {
+                    timeZone: "Asia/Kolkata",
+                  })
+                : "Historical date unavailable"}
+            </span>
+          </p>
+        ))}
+      </section>
+      <OrderTools
+        eligible={returnEligible(order)}
+        order={order}
+        request={returns().find((r) => r.orderId === order.id)}
+      />
     </div>
   );
 }

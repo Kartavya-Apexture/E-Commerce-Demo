@@ -7,7 +7,7 @@ import {
   AlertCircle,
 } from "lucide-react";
 import { requireAdmin } from "@/lib/auth";
-import { products, orders } from "@/lib/db";
+import { products, orders, returns, supportMessages } from "@/lib/db";
 import { money } from "@/lib/types";
 export const metadata = { title: "Admin overview" };
 export default async function Page() {
@@ -17,19 +17,49 @@ export default async function Page() {
   const revenue = allOrders
     .filter((o) => o.status !== "Cancelled")
     .reduce((sum, o) => sum + o.total, 0);
-  const low = catalogue.filter((p) => p.variants.some((v) => v.stock <= 2));
+  const low = catalogue.filter((p) =>
+    p.variants.some((v) => v.active !== false && v.stock <= 2),
+  );
   return (
     <>
       <div className="admin-heading">
         <div>
           <p className="eyebrow">YOUR STORE, AT A GLANCE</p>
-          <h1>Good things are happening.</h1>
+          <h1>Your store at a glance.</h1>
           <p className="muted">
-            Here’s a little overview of your Aurelle demo store.
+            King and Queen Store · Products, orders, and customer care.
           </p>
         </div>
         <Link className="button outline" href="/">
           View storefront <ArrowUpRight size={16} />
+        </Link>
+      </div>
+      <div className="admin-work-queue">
+        <Link className="panel" href="/admin/orders?status=Placed">
+          <strong>
+            {
+              allOrders.filter((o) =>
+                ["Placed", "Processing"].includes(o.status),
+              ).length
+            }
+          </strong>
+          <span>Awaiting fulfilment →</span>
+        </Link>
+        <Link className="panel" href="/admin/returns">
+          <strong>
+            {
+              returns().filter((r) =>
+                ["Requested", "Approved"].includes(r.status),
+              ).length
+            }
+          </strong>
+          <span>Open returns →</span>
+        </Link>
+        <Link className="panel" href="/admin/support?status=New">
+          <strong>
+            {supportMessages().filter((m) => m.status === "New").length}
+          </strong>
+          <span>New messages →</span>
         </Link>
       </div>
       <div className="stat-grid">
@@ -126,7 +156,7 @@ export default async function Page() {
                 {p.name}
                 <small>
                   {p.variants
-                    .filter((v) => v.stock <= 2)
+                    .filter((v) => v.active !== false && v.stock <= 2)
                     .map((v) => `${v.size}: ${v.stock}`)
                     .join(" · ")}
                 </small>

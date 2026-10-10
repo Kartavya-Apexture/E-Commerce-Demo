@@ -6,21 +6,22 @@ export const metadata = { title: "Manage orders" };
 export default async function Page({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string; status?: string }>;
+  searchParams: Promise<{ q?: string; status?: string; payment?: string }>;
 }) {
   await requireAdmin();
-  const { q = "", status = "" } = await searchParams;
+  const { q = "", status = "", payment = "" } = await searchParams;
   const list = orders().filter(
     (o) =>
       `${o.id} ${o.name} ${o.email}`.toLowerCase().includes(q.toLowerCase()) &&
-      (!status || o.status === status),
+      (!status || o.status === status) &&
+      (!payment || o.paymentStatus === payment),
   );
   return (
     <>
       <div className="admin-heading">
         <div>
           <p className="eyebrow">FROM BAG TO DOORSTEP</p>
-          <h1>Every order, a little story.</h1>
+          <h1>Orders</h1>
           <p className="muted">
             Review demo purchases and manage their fulfilment status.
           </p>
@@ -42,6 +43,15 @@ export default async function Page({
           {statuses.map((s) => (
             <option key={s}>{s}</option>
           ))}
+        </select>
+        <select
+          name="payment"
+          aria-label="Filter payment status"
+          defaultValue={payment}
+        >
+          <option value="">All payments</option>
+          <option>Pending</option>
+          <option>Demo paid</option>
         </select>
         <button className="button small">Search</button>
         <Link className="text-link" href="/admin/orders">

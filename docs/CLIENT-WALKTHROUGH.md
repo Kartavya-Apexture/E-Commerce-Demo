@@ -1,16 +1,20 @@
-# A five-minute client presentation
+# Client presentation walkthrough
 
-1. Open http://127.0.0.1:3000. Show the Aurelle campaign, collection categories, new arrivals, and mobile layout.
-2. Open the collection. Search for “Scarlet”, apply a size or price filter, and show how sorting works. Clear filters to return to all 24 sample pieces.
-3. Open the Scarlet occasion dress. Show the gallery/detail crop and size guide. XS is sold out; choose S or M. Save the piece to the wishlist, then add it to the bag.
-4. Open the bag. Change quantity, show delivery pricing, and continue as a guest. Enter sample Indian contact/address details.
-5. Choose simulated online payment and enable “Demonstrate a declined payment”. Place the order to show the failure message and unchanged bag. Disable the failure checkbox and place it again successfully.
-6. Save the private order page URL. No actual money or parcel is involved.
-7. Open http://127.0.0.1:3000/admin in another tab. Sign in with admin@aurelle.demo / AurelleDemo2026!.
-8. Find the new order. Move it through Processing, Shipped, and Delivered. Refresh the customer’s saved order page to show the same statuses.
-9. Edit a product’s selling price and stock. Refresh the storefront to show the changes. Archive a product and show that it disappears; restore it afterward.
-10. Explain that branding, actual catalogue photos, policies, payments, courier services, and production hosting are the next stage after design approval.
+Use http://127.0.0.1:3001 with the fresh `data/kg-preview.sqlite` database. The preserved original database is separate.
 
-To show cancellation instead, cancel a new Placed or Processing order and compare variant stock before and after. Cancellation is unavailable after shipping. Payment status is shown separately.
+1. Open the homepage. Present the K&G identity, five categories, featured edit, fresh arrivals and two demo offers. Show the phone layout too.
+2. Search for “Scarlet” using the header. Open all results. Show filters, removable chips, sorting and collections.
+3. Open Scarlet occasion dress. Show the full photograph, labelled detail crop, zoom and size guide. XS is sold out; select S or M. Save to wishlist, then add to the bag.
+4. Open the full bag. Change quantity, show free-delivery progress and apply `KG10`. Remove/reapply it to demonstrate updated totals.
+5. Enter a sample Indian address. Continue to payment, choose simulated online payment and enable the decline demonstration. Review and submit; the bag remains intact after failure. Edit payment, disable decline and submit successfully.
+6. Save/copy the private order link. Open Your Orders and Track an Order. An order number alone does not reveal private details.
+7. Open admin in another tab. Sign in with `admin@kgstore.demo` / `KGStoreDemo2026!`. Find the order and move it through Processing → Shipped → Delivered. Refresh the customer order to show dated tracking.
+8. Request a return from the delivered order. In admin Returns, approve it, then confirm receipt. Explain that receipt restores stock once; the demo creates no refund.
+9. Send a message from Contact. Open admin Support, find its reference and resolve it.
+10. Show product editing: change stock, featured status and visibility. Removed colour variants remain in old order references. Disable/enable an offer in admin and show its storefront effect on refresh.
 
-Before repeating the presentation, close browser tabs, run `npm run demo:reset`, then use “Clear my demo data” in the storefront footer. The reset restores only this demo’s local database; the footer clears only this browser’s cart and wishlist.
+For an alternative cancellation demonstration, place a new COD order and cancel while Placed or Processing. Refresh to verify cancellation and restored stock. Shipped orders cannot be cancelled.
+
+Before/after screenshots are local files under `artifacts`: `before-storefront-1440.png`, `kg-storefront-1440.png`, `kg-storefront-375.png`, and `kg-admin-1440.png`. Test screenshots include sample test activity. A clean preview screenshot is `kg-preview-1440.png`.
+
+All customer actions persist locally. No real payment, email, shipment or refund occurs. Use sample details during the presentation.

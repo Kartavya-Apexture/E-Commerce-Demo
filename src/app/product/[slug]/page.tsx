@@ -35,7 +35,9 @@ export default async function ProductPage({
         </div>
         <div className="product-grid">
           {catalogue
-            .filter((p) => p.id !== product.id)
+            .filter(
+              (p) => p.id !== product.id && p.category === product.category,
+            )
             .slice(0, 4)
             .map((p) => (
               <ProductCard key={p.id} product={p} />

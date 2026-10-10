@@ -1,10 +1,23 @@
 import type { Metadata } from "next";
 import { Header, Footer } from "@/components/store-shell";
 import "./globals.css";
+import localFont from "next/font/local";
+import { products } from "@/lib/db";
+const inter = localFont({
+  src: "../../public/fonts/inter-variable.ttf",
+  variable: "--font-inter",
+  display: "swap",
+});
+const playfair = localFont({
+  src: "../../public/fonts/playfairdisplay-variable.ttf",
+  variable: "--font-playfair",
+  display: "swap",
+});
+export const dynamic = "force-dynamic";
 export const metadata: Metadata = {
   title: {
-    default: "Aurelle — Everyday, Extraordinary",
-    template: "%s | Aurelle",
+    default: "King and Queen Store — Your kind of style",
+    template: "%s | K&G Store",
   },
   description:
     "Discover your next favourite. A boutique women’s western wear shopping demo.",
@@ -18,8 +31,8 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body>
-        <Header />
+      <body className={`${inter.variable} ${playfair.variable}`}>
+        <Header products={products()} />
         <main id="main">{children}</main>
         <Footer />
       </body>

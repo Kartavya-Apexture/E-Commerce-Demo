@@ -4,24 +4,43 @@ import { Plus } from "lucide-react";
 import { products } from "@/lib/db";
 import { requireAdmin } from "@/lib/auth";
 import { archiveProduct } from "@/app/actions";
-import { money } from "@/lib/types";
+import { money, categories } from "@/lib/types";
 export const metadata = { title: "Manage products" };
 export default async function Page({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string }>;
+  searchParams: Promise<{
+    q?: string;
+    category?: string;
+    visibility?: string;
+    stock?: string;
+  }>;
 }) {
   await requireAdmin();
-  const { q = "" } = await searchParams;
-  const catalogue = products(true).filter((p) =>
-    p.name.toLowerCase().includes(q.toLowerCase()),
+  const {
+    q = "",
+    category = "",
+    visibility = "",
+    stock = "",
+  } = await searchParams;
+  const catalogue = products(true).filter(
+    (p) =>
+      p.name.toLowerCase().includes(q.toLowerCase()) &&
+      (!category || p.category === category) &&
+      (!visibility || (visibility === "archived" ? p.archived : !p.archived)) &&
+      (!stock ||
+        (stock === "low"
+          ? p.variants.some((v) => v.active !== false && v.stock <= 2)
+          : p.variants
+              .filter((v) => v.active !== false)
+              .every((v) => v.stock === 0))),
   );
   return (
     <>
       <div className="admin-heading">
         <div>
           <p className="eyebrow">THE COLLECTION</p>
-          <h1>Your pieces, in one place.</h1>
+          <h1>Products & inventory</h1>
           <p className="muted">
             Manage details, pricing, and stock. Changes appear in the store on
             refresh.
@@ -38,6 +57,30 @@ export default async function Page({
           placeholder="Find a product…"
           defaultValue={q}
         />
+        <select
+          name="category"
+          aria-label="Filter category"
+          defaultValue={category}
+        >
+          <option value="">All categories</option>
+          {categories.map((c) => (
+            <option key={c}>{c}</option>
+          ))}
+        </select>
+        <select
+          name="visibility"
+          aria-label="Filter visibility"
+          defaultValue={visibility}
+        >
+          <option value="">All visibility</option>
+          <option value="active">Active</option>
+          <option value="archived">Archived</option>
+        </select>
+        <select name="stock" aria-label="Filter stock" defaultValue={stock}>
+          <option value="">All inventory</option>
+          <option value="low">Low stock</option>
+          <option value="out">Sold out</option>
+        </select>
         <button className="button small">Search</button>
         <Link href="/admin/products" className="text-link">
           Clear
@@ -70,9 +113,14 @@ export default async function Page({
                 <td>{p.category}</td>
                 <td>{money(p.price)}</td>
                 <td>
-                  {p.variants.reduce((sum, v) => sum + v.stock, 0)}
+                  {p.variants
+                    .filter((v) => v.active !== false)
+                    .reduce((sum, v) => sum + v.stock, 0)}
                   <small className="block muted">
-                    {p.variants.map((v) => `${v.size} ${v.stock}`).join(" / ")}
+                    {p.variants
+                      .filter((v) => v.active !== false)
+                      .map((v) => `${v.colour} ${v.size}: ${v.stock}`)
+                      .join(" / ")}
                   </small>
                 </td>
                 <td>

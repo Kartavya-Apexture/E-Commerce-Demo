@@ -1,73 +1,68 @@
-# Aurelle — retail storefront and admin demo
+# King and Queen Store — connected retail demo
 
-A premium women’s western wear prototype built with Next.js 16.4, TypeScript, Tailwind CSS 4, and a connected local SQLite database.
+A working women’s western wear storefront and admin panel using Next.js 16.4, strict TypeScript, Tailwind CSS 4, and SQLite. Project: `F:\westernwear-retail-demo`.
 
 ## Before and after
 
-Before: no retail website or admin demonstration.
-After: customers browse, save products, choose sizes, and place demo orders. Admin manages products, stock, and fulfilment. Both use the same database.
+| Before                       | After                                                                                          |
+| ---------------------------- | ---------------------------------------------------------------------------------------------- |
+| Aurelle boutique branding    | King and Queen Store (K&G Store), local fonts, modern retail layouts                           |
+| 24 repeated sample listings  | 24 distinct garments in the fresh demo catalogue                                               |
+| Basic catalogue and checkout | Search suggestions, collections, filters, quick add, cart drawer, coupons, three-step checkout |
+| Saved order links only       | Private browser order history, tracking, cancellation and returns                              |
+| Basic product/order admin    | Multi-colour inventory, merchandising, offers, returns and support                             |
 
-Project location: F:\westernwear-retail-demo. Synced ChatGPT reference files and other F: projects are untouched.
+## Open the client preview
 
-## Open the demo
+- Store: http://127.0.0.1:3001
+- Admin: http://127.0.0.1:3001/admin
+- Email: `admin@kgstore.demo`
+- Password: `KGStoreDemo2026!`
 
-- Store: http://127.0.0.1:3000
-- Admin: http://127.0.0.1:3000/admin
-- Email: admin@aurelle.demo
-- Password: AurelleDemo2026!
+The preview uses `data/kg-preview.sqlite`, a separate fresh catalogue. Existing data in `data/aurelle.sqlite` was preserved. Old admin sessions were invalidated during migration.
 
-These credentials are for a local demonstration. Payments, deliveries, contact details, and policies are simulations. No payment details are collected.
+## Install and start
 
-## Start it again
-
-Open a terminal in this project:
+Use Node.js 22.13 or a compatible supported Node version and npm. The SQLite driver is pinned to 12.11.1 for this Windows runtime. All images and fonts are supplied locally.
 
 ```powershell
-cd 'F:\westernwear-retail-demo'
+Set-Location F:\westernwear-retail-demo
 npm ci
-npm run seed
+$env:DEMO_DB_PATH = 'data/kg-preview.sqlite'
+$env:PORT = '3001'
 npm run build
 npm run start
 ```
 
-The server binds to this computer only. Open http://127.0.0.1:3000. Keep the terminal running while presenting. Stop with Ctrl+C.
+For development, use `npm run dev` after setting the same database and port variables. To use the preserved original database, set `DEMO_DB_PATH` to `data/aurelle.sqlite`. Without a database override, this original path remains the default. Next.js also reads `.env.local`; copy `.env.example` if desired and set the demo password override there. Seed/reset scripts use shell environment variables, so set `DEMO_DB_PATH` explicitly for those commands.
 
-For editing, use `npm run dev` instead. The installed Node.js 22.13.0 was verified. Keep the pinned better-sqlite3 version: 13.0.3 crashed on this runtime, so this project uses tested version 12.11.1.
+## Working flows
 
-Optional settings are documented in `.env.example`. Copy it to `.env.local` if needed. `DEMO_DB_PATH` chooses the local database, `DEMO_ADMIN_PASSWORD` changes the demo password, and `DEMO_HTTPS` enables secure cookies only when actually served over HTTPS. Standalone seed/reset scripts read shell environment variables, not `.env.local`; pass a custom database path in the shell when using these scripts.
+- Home, five clothing categories, New Arrivals, Featured, Sale, URL-based search/filter/sort/pagination, product galleries with zoom, size guides and related products.
+- Wishlist, recent products, quick add, persistent bag, quantity limits, save-to-wishlist, delivery progress and cart drawer.
+- Guest checkout: Address → Payment → Review. Indian address validation, optional remembered details, COD or simulated online payment, decline demonstration, server price/stock/coupon checks.
+- `KG10`: 10% off merchandise of ₹999+, capped at ₹300. `STYLE200`: ₹200 off merchandise of ₹2,499+. One case-insensitive coupon per order. Delivery costs ₹99 below ₹1,999 merchandise, calculated before discounts.
+- Private browser order history and tracking by a private code/link. Cancellation before shipping restores stock once. One whole-order return within seven days of recorded delivery; admin receipt restores stock once.
+- Contact messages are saved with a reference number and handled in admin. No email is sent.
+- Admin manages products, colour/size stock, featured selections, archive status, orders, fulfilment history, offer availability, returns and support.
 
-## Features
+Browser storage holds cart, wishlist, recent IDs, private order tokens and optionally remembered details. Order history itself stores no customer details. Valid `aurelle-v1` carts/wishlists migrate when a change is saved. Private order links grant access; keep them private. Every admin read/write checks an expiring HttpOnly session.
 
-- Responsive campaign homepage and five clothing categories.
-- 24 sample catalogue entries, search, URL filters, sorting, sale and sold-out examples.
-- Local product photos; gallery/detail crop; size guide; size, quantity, and colour display.
-- Browser-persistent cart and wishlist; guest Indian address checkout.
-- ₹99 delivery, complimentary at a ₹1,999 merchandise subtotal.
-- Cash-on-delivery and simulated successful/declined online payments.
-- Server-validated prices and stock, transactional reservations, duplicate-request protection.
-- Private order confirmation/status pages with unpredictable tokens.
-- Admin dashboard, product creation/editing, size stock, archiving/restoration, image-library selection.
-- Orders, search/filter, customer details, forward fulfilment status updates, pre-shipment cancellation.
-- Cancellation returns stock once; payment and fulfilment status stay separate.
-- Loading, empty, error, and success states; keyboard dialogs and mobile navigation.
+## Data and reset
 
-Data is saved in `data/aurelle.sqlite`. Browser storage is used only for the cart and wishlist. Admin edits appear in another browser after refresh. Orders preserve the purchased name, colour, price, and size even if the product later changes.
+Starting the application applies additive migrations and preserves existing products, slugs, variant IDs, orders, tokens and stock. The redesigned sample catalogue appears in a fresh database or after an explicit reset. Removed colour variants are deactivated, preserving order references.
 
-## Reset for another client presentation
+The local pre-upgrade database backup is `data/backups/pre-kg-upgrade.sqlite`. Databases and backups are ignored by Git. Stop the server before manually restoring a backup.
+
+To reset only the selected demonstration database, stop its server and run:
 
 ```powershell
-npm run demo:reset
-```
-
-This restores the selected demo database to 24 products and 3 sample orders and removes admin sessions. It does not affect another project. Use the storefront footer’s **Clear my demo data** button to clear this browser’s bag and wishlist. Avoid resetting during an active checkout.
-
-For a custom database:
-
-```powershell
-$env:DEMO_DB_PATH = 'data/my-demo.sqlite'
+$env:DEMO_DB_PATH = 'data/kg-preview.sqlite'
 npm run demo:reset
 npm run start
 ```
+
+Reset removes orders, products, variants, product metadata, coupons, sessions, returns and support messages, then restores 24 products, two offers and three sample orders. Use “Clear my demo data” in the footer to clear browser cart, wishlist, history, recent items, coupon and remembered details. Reset the database only when intentionally discarding demo changes.
 
 ## Quality checks
 
@@ -76,27 +71,13 @@ npm run lint
 npm run typecheck
 npm run build
 npm run test:commerce
-npx playwright install chromium
 npm run test:e2e
 ```
 
-Lint treats warnings as failures. TypeScript uses strict checking, and explicit `any` is prohibited. External form/storage values are validated before use.
+Browser tests run the production build on port 3100 with a separate `data/e2e.sqlite`; commerce/migration tests use separate temporary databases under `data`. They never reset the presentation database. Install the browser once with `npx playwright install chromium` if needed. Generated screenshots/reports are excluded from Git.
 
-Commerce tests use isolated databases under `data/commerce-tests-*`. Browser tests reset only `data/e2e.sqlite` and start a separate production server on port 3100. Keep that port free. Tests never reset the client presentation database. Screenshots are saved under `artifacts/`; the browser report is under `playwright-report/`.
+See [quality results](docs/QUALITY-CHECKS.md), [client walkthrough](docs/CLIENT-WALKTHROUGH.md), [research log](docs/RESEARCH.md) and [asset credits](docs/IMAGE-CREDITS.md).
 
-See `docs/QUALITY-CHECKS.md` for final results and `docs/CLIENT-WALKTHROUGH.md` for the presentation script.
+## Prototype boundaries
 
-## What remains for a real launch
-
-Replace sample brand/catalogue photos and support details; confirm prices, product materials, sizing, taxes, and policies. Add real payments, shipping, refunds/returns, communications, production authentication, and hosting as a separate stage. The five photographed designs are reused across labelled demo “Edit” catalogue entries; they are not 24 distinct real garments.
-
-This local prototype intentionally has no customer account system, uploads, courier integrations, emails/SMS, GST invoices, reviews, or analytics service. Private order links must be kept private.
-
-Dependency audit reports five transitive advisories in the Next.js ESLint tooling chain, not runtime dependencies. `npm audit --omit=dev` is clean. These are recorded without downgrading Next.js or applying breaking automatic changes.
-
-## Reference material
-
-- docs/RESEARCH.md — 15 staged research queries and implementation decisions.
-- docs/IMAGE-CREDITS.md — local photograph sources and licence.
-- docs/CLIENT-WALKTHROUGH.md — five-minute presentation.
-- docs/QUALITY-CHECKS.md — verification evidence.
+Payments, delivery estimates, policies, fabric information and sizing are demonstrations. No real payments, shipments or refunds are created. Customer accounts, uploads, notifications, courier integrations, GST invoices, loyalty, unsupported reviews and public hosting remain outside this upgrade. Replace editorial photographs with the client’s actual garment photography before launch. The striped shirt and black skirt share one outfit photograph; other fresh garments have distinct credited photographs.

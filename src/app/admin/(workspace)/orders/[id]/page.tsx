@@ -2,7 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { notFound } from "next/navigation";
 import { requireAdmin } from "@/lib/auth";
-import { orders } from "@/lib/db";
+import { orders, returns } from "@/lib/db";
 import { StatusForm } from "@/components/admin";
 import { money } from "@/lib/types";
 export const metadata = { title: "Order details" };
@@ -56,6 +56,10 @@ export default async function Page({
               <dd>{money(order.subtotal)}</dd>
             </div>
             <div>
+              <dt>Discount {order.couponCode || ""}</dt>
+              <dd>−{money(order.discount || 0)}</dd>
+            </div>
+            <div>
               <dt>Delivery</dt>
               <dd>{money(order.shipping)}</dd>
             </div>
@@ -74,6 +78,20 @@ export default async function Page({
             <br />
             {order.address}, {order.city}, {order.state} {order.pin}
           </p>
+          <h2>Order history</h2>
+          {order.history?.map((h, i) => (
+            <p key={i}>
+              {h.status} ·{" "}
+              {h.at
+                ? new Date(h.at).toLocaleString("en-IN")
+                : "Historical date unavailable"}
+            </p>
+          ))}
+          {returns().some((r) => r.orderId === order.id) && (
+            <Link className="text-link" href="/admin/returns">
+              Manage this order’s return →
+            </Link>
+          )}
         </section>
         <aside className="panel">
           <h2>Manage fulfilment</h2>

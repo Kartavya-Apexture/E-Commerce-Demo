@@ -1,156 +1,200 @@
-import Link from "next/link";
 import Image from "next/image";
+import Link from "next/link";
 import {
   ArrowUpRight,
-  ArrowRight,
   Truck,
   RotateCcw,
-  Sparkles,
+  ShieldCheck,
+  ArrowRight,
 } from "lucide-react";
-import { products } from "@/lib/db";
+import { products, coupons } from "@/lib/db";
+import { categories } from "@/lib/types";
 import { ProductCard } from "@/components/product-card";
+import { RecentlyViewed } from "@/components/product-detail";
 export const dynamic = "force-dynamic";
 export default function Home() {
   const catalogue = products();
+  const hero =
+    catalogue.find((p) => p.category === "Outerwear") || catalogue[0];
+  const occasion =
+    catalogue.find((p) => p.id === "p8") ||
+    catalogue.find((p) => p.category === "Dresses");
+  const featured = catalogue.filter((p) => p.featured);
+  const newest = [...catalogue].sort(
+    (a, b) => Date.parse(b.createdAt) - Date.parse(a.createdAt),
+  );
   return (
     <>
-      <section className="hero">
-        <div className="hero-copy">
-          <div className="eyebrow">
-            <span className="small-line" /> THE NEW SEASON EDIT · 2026
-          </div>
+      <section className="retail-hero">
+        <div className="retail-hero-copy">
+          <p className="eyebrow">
+            <span /> THE K&G NEW SEASON EDIT
+          </p>
           <h1>
-            A little effortless.
-            <br />A lot <em>you.</em>
+            Your everyday.
+            <br />A little more
+            <br />
+            <em>extraordinary.</em>
           </h1>
           <p>
-            Fresh silhouettes for wherever the day takes you.
+            From effortless mornings to unforgettable evenings.
             <br />
-            Meet the pieces you’ll reach for, again and again.
+            Discover pieces that feel like you.
           </p>
           <Link href="/shop" className="button">
-            Discover the collection <ArrowUpRight size={18} />
+            Shop the collection <ArrowUpRight size={19} />
           </Link>
-          <div className="hero-caption">
-            <span>01 —</span> Your everyday, beautifully reimagined.
-          </div>
-        </div>
-        <div className="hero-image">
-          <Image
-            src="/images/fashion-0.jpg"
-            alt="Powder blue longline coat styled for an everyday city escape"
-            fill
-            priority
-            sizes="(max-width: 768px) 100vw, 53vw"
-          />
-          <div className="image-note">
-            <span>THE CITY EDIT</span>
-            <Link href="/product/powder-blue-longline-coat">
-              Made for a change of scenery <ArrowUpRight size={17} />
+          <div className="hero-bottom-note">
+            <span>01 / THE EVERYDAY EDIT</span>
+            <Link href="/collections/new-arrivals">
+              Discover what’s new <ArrowRight size={15} />
             </Link>
           </div>
-          <div className="hero-sticker">
-            a new
-            <br />
-            <em>perspective.</em>
-          </div>
         </div>
+        {hero && (
+          <Link className="retail-hero-photo" href={`/product/${hero.slug}`}>
+            <Image
+              src={hero.image}
+              alt={hero.name}
+              fill
+              sizes="(max-width:768px) 100vw,45vw"
+              preload
+            />
+            <div className="campaign-caption">
+              <span>STYLE WITHOUT THE OVERTHINKING</span>
+              <strong>
+                The city collection <ArrowUpRight />
+              </strong>
+            </div>
+          </Link>
+        )}
       </section>
       <div className="benefit-strip">
         <span>
-          <Truck size={19} /> Free shipping above ₹1,999
+          <Truck size={21} /> Free delivery on ₹1,999+
         </span>
         <span>
-          <RotateCcw size={18} /> Easy 7-day returns <small>DEMO POLICY</small>
+          <RotateCcw size={21} /> 7-day demo returns
         </span>
         <span>
-          <Sparkles size={18} /> Thoughtfully chosen. Beautifully worn.
+          <ShieldCheck size={21} /> Guest checkout, made simple
         </span>
       </div>
       <section className="container section">
         <div className="section-heading">
           <div>
-            <p className="eyebrow">A WARDROBE, YOUR WAY</p>
-            <h2>What’s your mood?</h2>
+            <p className="eyebrow">FIND YOUR NEXT FAVOURITE</p>
+            <h2>Shop by category</h2>
           </div>
-          <Link href="/shop" className="text-link">
-            Explore all styles <ArrowUpRight size={17} />
+          <Link className="text-link" href="/shop">
+            Explore all <ArrowUpRight size={17} />
           </Link>
         </div>
-        <div className="category-grid">
-          {[
-            { name: "Dresses", image: 2, text: "A moment of your own" },
-            { name: "Co-ords", image: 1, text: "Perfectly in sync" },
-            { name: "Bottoms", image: 5, text: "Start with the essentials" },
-          ].map((c) => (
-            <Link
-              key={c.name}
-              className="category-card"
-              href={`/shop?category=${c.name}`}
-            >
-              <Image
-                src={`/images/fashion-${c.image}.jpg`}
-                alt={`${c.name} collection`}
-                fill
-                sizes="(max-width: 640px) 85vw, 32vw"
-              />
-              <div>
-                <span>{c.text}</span>
+        <div className="retail-categories">
+          {categories.map((c) => {
+            const p = catalogue.find((p) => p.category === c);
+            return p ? (
+              <Link href={`/shop?category=${encodeURIComponent(c)}`} key={c}>
+                <div className="category-photo">
+                  <Image
+                    src={p.image}
+                    alt={`${c} collection`}
+                    fill
+                    sizes="(max-width:640px) 45vw,18vw"
+                  />
+                </div>
                 <h3>
-                  {c.name} <ArrowUpRight size={24} />
+                  {c}
+                  <ArrowUpRight size={17} />
                 </h3>
-              </div>
-            </Link>
-          ))}
+              </Link>
+            ) : null;
+          })}
         </div>
       </section>
-      <section className="container section arrivals">
+      <section className="container section">
         <div className="section-heading">
           <div>
-            <p className="eyebrow">FRESH FINDS, FOREVER FAVOURITES</p>
-            <h2>Just landed. Already loved.</h2>
+            <p className="eyebrow">CURATED FOR YOUR WARDROBE</p>
+            <h2>The K&G edit</h2>
           </div>
-          <Link href="/shop?sort=newest" className="text-link">
-            Shop new arrivals <ArrowRight size={17} />
+          <Link href="/collections/featured" className="text-link">
+            Shop the edit <ArrowRight size={17} />
           </Link>
         </div>
         <div className="product-grid">
-          {catalogue.slice(0, 4).map((p) => (
+          {(featured.length ? featured : catalogue).slice(0, 4).map((p) => (
             <ProductCard key={p.id} product={p} />
           ))}
         </div>
       </section>
-      <section className="editorial">
-        <div className="editorial-photo">
-          <Image
-            src="/images/fashion-5.jpg"
-            alt="Blush pocket joggers with an effortless relaxed fit"
-            fill
-            sizes="(max-width: 768px) 100vw, 45vw"
-          />
-        </div>
-        <div>
-          <p className="eyebrow">LESS OVERTHINKING. MORE YOU.</p>
+      <section className="campaign-banner">
+        {occasion && (
+          <div className="campaign-photo">
+            <Image
+              src={occasion.image}
+              alt={occasion.name}
+              fill
+              sizes="(max-width:768px) 100vw,45vw"
+            />
+          </div>
+        )}
+        <div className="campaign-copy">
+          <p className="eyebrow">FOR THE MOMENTS THAT MATTER</p>
           <h2>
-            Great style starts
-            <br />
-            with feeling <em>good.</em>
+            A good outfit.
+            <br />A great feeling.
           </h2>
           <p>
-            For coffee runs that turn into catch-ups. For plans that change. For
-            every version of your everyday. A wardrobe that keeps up,
-            beautifully.
+            Dress for your plans. Or make plans for the dress.
+            <br />
+            Your next standout moment starts here.
           </p>
-          <Link href="/about" className="text-link">
-            Get to know Aurelle <ArrowUpRight size={18} />
+          <Link href="/shop?category=Dresses" className="button">
+            Find your occasion look <ArrowUpRight size={17} />
           </Link>
         </div>
       </section>
-      <section className="closing-note">
-        <span className="eyebrow">THE AURELLE WAY</span>
-        <h2>Wear what feels like you.</h2>
-        <Link href="/shop" className="button outline">
-          Find your next favourite <ArrowUpRight size={17} />
+      <section className="container section">
+        <div className="section-heading">
+          <div>
+            <p className="eyebrow">FRESH FINDS</p>
+            <h2>Just landed</h2>
+          </div>
+          <Link href="/collections/new-arrivals" className="text-link">
+            All new arrivals <ArrowRight size={17} />
+          </Link>
+        </div>
+        <div className="product-grid">
+          {newest.slice(0, 4).map((p) => (
+            <ProductCard key={p.id} product={p} />
+          ))}
+        </div>
+      </section>
+      <RecentlyViewed products={catalogue} />
+      <section className="offers-strip">
+        <div>
+          <p className="eyebrow">A LITTLE EXTRA, FOR YOU</p>
+          <h2>Good style. Better value.</h2>
+        </div>
+        <div>
+          {coupons()
+            .filter((c) => c.active)
+            .map((c) => (
+              <div className="offer" key={c.code}>
+                <strong>{c.code}</strong>
+                <span>
+                  {c.kind === "percent"
+                    ? `${c.amount}% off · up to ₹${c.cap / 100}`
+                    : `₹${c.amount / 100} off`}
+                  <br />
+                  Orders ₹{c.minimum / 100}+ · Demo offer
+                </span>
+              </div>
+            ))}
+        </div>
+        <Link className="text-link" href="/collections/sale">
+          Explore the sale <ArrowUpRight size={17} />
         </Link>
       </section>
     </>

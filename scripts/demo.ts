@@ -2,7 +2,7 @@ import { db, seed } from "../src/lib/db";
 if (process.argv.includes("--reset")) {
   db.transaction(() => {
     db.exec(
-      "DELETE FROM orders; DELETE FROM variants; DELETE FROM products; DELETE FROM sessions;",
+      "DELETE FROM return_requests; DELETE FROM support_messages; DELETE FROM coupons; DELETE FROM orders; DELETE FROM product_meta; DELETE FROM variants; DELETE FROM products; DELETE FROM sessions;",
     );
   })();
   seed();

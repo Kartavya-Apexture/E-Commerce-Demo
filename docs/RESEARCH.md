@@ -1,4 +1,4 @@
-# Research used for Aurelle
+# Research used for K&G Store
 
 The planning stage performed the following 15 searches separately, working from setup to shopping UX, data integrity, and verification. Official technical documentation and original UX research were preferred. The implementation also inspected the documentation bundled with the installed Next.js release.
 
@@ -21,3 +21,27 @@ The planning stage performed the following 15 searches separately, working from 
 | 15  | Data updates                             | [revalidatePath](https://nextjs.org/docs/app/api-reference/functions/revalidatePath): refresh affected routes after mutations; refresh another browser manually.                                                               |
 
 Additional implementation research: [Unsplash licence](https://unsplash.com/license) for the supplied local sample photographs. See IMAGE-CREDITS.md. This demo is local, uses sample products and policies, and does not process real payments.
+
+## K&G upgrade research
+
+The upgrade added 15 separately staged web searches, followed by fetching the relevant original guides. The topics and resulting implementation choices are recorded below. Technical decisions also checked the documentation shipped with the installed Next.js version.
+
+| #   | Search topic                          | Source and implementation decision                                                                                                                                                                                                          |
+| --- | ------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | Apparel category navigation           | [Baymard apparel search](https://baymard.com/research-articles/apparel-search): visible categories and curated collections.                                                                                                                 |
+| 2   | Apparel product photographs and sizes | [Five apparel practices](https://baymard.com/research-articles/apparel-5-best-practices): useful matching imagery, visible sizes and honest detail crops.                                                                                   |
+| 3   | Combined filters and removable chips  | [Applied filters](https://baymard.com/research-articles/how-to-design-applied-filters): URL state, removable chips, preserved other filters.                                                                                                |
+| 4   | Search suggestions                    | [Autocomplete design](https://baymard.com/research-articles/autocomplete-design): six straightforward results and a view-all link.                                                                                                          |
+| 5   | Guest checkout and staged review      | [Guest checkout](https://baymard.com/research-articles/make-guest-checkout-prominent): no account barrier; address, payment and review.                                                                                                     |
+| 6   | Coupon presentation                   | [Coupon entry](https://baymard.com/research-articles/checkout-usability-apply-buttons): optional collapsed entry, apply/remove, visible savings.                                                                                            |
+| 7   | Forms and server validation           | [Next.js forms](https://nextjs.org/docs/app/guides/forms): typed Server Actions, Zod validation, preserved input and pending/error states.                                                                                                  |
+| 8   | Protected admin operations            | [Next.js authentication](https://nextjs.org/docs/app/guides/authentication): check sessions on every protected read/write.                                                                                                                  |
+| 9   | Atomic inventory and return receipt   | [better-sqlite3 API](https://github.com/WiseLibs/better-sqlite3/blob/master/docs/api.md): synchronous immediate transactions and prepared queries.                                                                                          |
+| 10  | Safe additive schema migration        | [SQLite ALTER TABLE](https://www.sqlite.org/lang_altertable.html): add metadata/tables without replacing existing catalogue or order identifiers.                                                                                           |
+| 11  | Local images and fonts                | [Next.js Image](https://nextjs.org/docs/app/api-reference/components/image), [fonts](https://nextjs.org/docs/app/api-reference/components/font): supplied local images, responsive sizes and licensed local fonts.                          |
+| 12  | Responsive layouts                    | [Tailwind responsive design](https://tailwindcss.com/docs/responsive-design): responsive grids, readable controls and mobile drawers.                                                                                                       |
+| 13  | Accessible dialogs                    | [W3C native dialog guidance](https://www.w3.org/WAI/WCAG22/Techniques/html/H102): native modal focus handling, Escape and focus return.                                                                                                     |
+| 14  | Full commerce browser testing         | [Next.js Playwright](https://nextjs.org/docs/app/guides/testing/playwright): test production pages/actions/data against a separate database.                                                                                                |
+| 15  | Strict TypeScript and refreshed data  | [TypeScript strictness](https://www.typescriptlang.org/tsconfig/noImplicitAny.html), [revalidation](https://nextjs.org/docs/app/api-reference/functions/revalidatePath): no explicit any, validate unknown inputs, refresh affected routes. |
+
+One Next.js application, one local SQLite database, and small interactive components remain the architecture. No external search, payment, authentication or state-management service was added.

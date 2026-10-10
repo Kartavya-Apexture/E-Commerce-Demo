@@ -1,253 +1,186 @@
 "use client";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import {
-  Heart,
-  Truck,
-  RotateCcw,
-  X,
-  Check,
-  ArrowRight,
-  Ruler,
-} from "lucide-react";
-import { money, type Product, type Size } from "@/lib/types";
-import { addToCart, toggleWishlist, useStore } from "./browser-store";
+import { Truck, RotateCcw, Expand, X } from "lucide-react";
+import { money, type Product, variantImage } from "@/lib/types";
+import { saveRecent, useStore } from "./browser-store";
+import { ProductCard } from "./product-card";
+import { Purchase } from "./purchase";
 export function ProductDetail({ product }: { product: Product }) {
-  const [size, setSize] = useState<Size | null>(null);
-  const [view, setView] = useState(0);
-  const [quantity, setQuantity] = useState(1);
-  const [message, setMessage] = useState("");
-  const colour = product.variants[0]?.colour || "";
-  const variant = product.variants.find(
-    (v) => v.size === size && v.colour === colour,
+  const [colour, setColour] = useState(
+    product.variants.find((v) => v.active !== false)?.colour || "",
   );
-  const saved = useStore().wishlist.includes(product.id);
-  const guide = useRef<HTMLDialogElement>(null);
+  const [view, setView] = useState(0);
+  const [crop, setCrop] = useState(false);
+  const zoom = useRef<HTMLDialogElement>(null);
+  const buy = useRef<HTMLDivElement>(null);
+  const gallery = product.galleries.find((g) => g.colour === colour)
+    ?.images || [variantImage(product, colour)];
+  const image = gallery[Math.min(view, gallery.length - 1)];
+  useEffect(() => {
+    saveRecent(product.id);
+  }, [product.id]);
   return (
     <div className="container section">
-      <div className="breadcrumbs">
+      <nav className="breadcrumbs" aria-label="Breadcrumb">
         <Link href="/">Home</Link>
         <span>/</span>
-        <Link href={`/shop?category=${product.category}`}>
+        <Link href={`/shop?category=${encodeURIComponent(product.category)}`}>
           {product.category}
         </Link>
         <span>/</span>
         <span>{product.name}</span>
-      </div>
+      </nav>
       <div className="product-detail">
         <div>
-          <div className={`detail-photo view-${view}`}>
+          <button
+            className={`detail-photo ${crop ? "view-1" : ""}`}
+            aria-label="Zoom product image"
+            onClick={() => zoom.current?.showModal()}
+          >
             <Image
-              src={product.image}
-              alt={`${colour} ${product.name}, ${view === 1 ? "detail crop" : "full outfit"}`}
+              src={image}
+              alt={`${colour} ${product.name}${crop ? ", detail crop" : ""}`}
               fill
-              sizes="(max-width: 768px) 95vw, 50vw"
-              priority
+              sizes="(max-width:768px) 95vw,50vw"
+              preload
             />
-          </div>
+            <span className="zoom-mark">
+              <Expand size={18} /> Zoom
+            </span>
+          </button>
           <div className="thumbnails">
-            {["Full look", "Detail"].map((label, i) => (
+            {gallery.map((src, i) => (
               <button
-                key={label}
-                className={view === i ? "selected" : ""}
-                aria-pressed={view === i}
-                onClick={() => setView(i)}
+                key={src + i}
+                className={view === i && !crop ? "selected" : ""}
+                onClick={() => {
+                  setView(i);
+                  setCrop(false);
+                }}
               >
-                <Image src={product.image} alt="" width={64} height={80} />
-                <span>{label}</span>
+                <Image src={src} alt={`View ${i + 1}`} width={64} height={80} />
+                <span>{i === 0 ? "Full look" : `View ${i + 1}`}</span>
               </button>
             ))}
+            <button
+              className={crop ? "selected" : ""}
+              onClick={() => setCrop(true)}
+            >
+              <Image src={image} alt="" width={64} height={80} />
+              <span>Detail crop</span>
+            </button>
           </div>
+          <p className="muted">
+            Editorial demo photography · details show a crop of the selected
+            image.
+          </p>
         </div>
         <div className="detail-copy">
-          <p className="eyebrow">{product.category} / THE NEW SEASON</p>
+          <p className="eyebrow">K&G STORE / {product.category}</p>
           <h1>{product.name}</h1>
           <div className="detail-price">
             {money(product.price)}{" "}
             {product.originalPrice && <del>{money(product.originalPrice)}</del>}
           </div>
           <p className="muted">
-            Sample pricing · Delivery calculated at checkout
+            Sample retail price · delivery shown before ordering
           </p>
           <p className="description">{product.description}</p>
-          <div className="option-title">
-            Colour <strong>{colour}</strong>
-          </div>
-          <button
-            className="colour-swatch"
-            aria-label={`Selected colour: ${colour}`}
-            aria-pressed="true"
-          >
-            <span
-              style={{
-                background:
-                  (
-                    {
-                      Scarlet: "#af233e",
-                      Red: "#c73639",
-                      Yellow: "#e5b523",
-                      Blush: "#d5a69c",
-                      Blue: "#91adbe",
-                    } as Record<string, string>
-                  )[colour] || "#777",
+          <div ref={buy} id="purchase-options">
+            <Purchase
+              product={product}
+              onColour={(c) => {
+                setColour(c);
+                setView(0);
+                setCrop(false);
               }}
             />
-            {colour}
-          </button>
-          <div className="option-title">
-            Choose your size{" "}
-            <button
-              className="text-link"
-              onClick={() => guide.current?.showModal()}
-            >
-              <Ruler size={15} /> Size guide
-            </button>
-          </div>
-          <div className="size-options">
-            {product.variants.map((v) => (
-              <button
-                key={v.id}
-                disabled={!v.stock}
-                aria-pressed={size === v.size}
-                className={size === v.size ? "selected" : ""}
-                onClick={() => {
-                  setSize(v.size);
-                  setQuantity(1);
-                  setMessage("");
-                }}
-              >
-                {v.size}
-              </button>
-            ))}
-          </div>
-          <p className="stock-note">
-            {variant
-              ? variant.stock <= 2
-                ? `Only ${variant.stock} left in this size`
-                : "In stock. Your next favourite is waiting."
-              : "Select a size to check availability."}
-          </p>
-          <div className="purchase-controls">
-            <label>
-              Quantity
-              <select
-                aria-label="Quantity"
-                value={quantity}
-                onChange={(e) => setQuantity(Number(e.target.value))}
-              >
-                {Array.from(
-                  { length: variant ? Math.min(variant.stock, 10) : 1 },
-                  (_, i) => (
-                    <option key={i} value={i + 1}>
-                      {i + 1}
-                    </option>
-                  ),
-                )}
-              </select>
-            </label>
-            <button
-              className="button"
-              disabled={!variant || product.archived}
-              onClick={() => {
-                if (variant) {
-                  addToCart(
-                    {
-                      productId: product.id,
-                      variantId: variant.id,
-                      quantity,
-                      price: product.price,
-                    },
-                    variant.stock,
-                  );
-                  setMessage("Added to your bag.");
-                }
-              }}
-            >
-              Add to bag <ArrowRight size={17} />
-            </button>
-            <button
-              aria-label={saved ? "Remove from wishlist" : "Save to wishlist"}
-              aria-pressed={saved}
-              className="button outline square"
-              onClick={() => toggleWishlist(product.id)}
-            >
-              <Heart size={19} fill={saved ? "currentColor" : "none"} />
-            </button>
-          </div>
-          <div aria-live="polite">
-            {message && (
-              <p className="success">
-                <Check size={15} />
-                {message} <Link href="/cart">View bag →</Link>
-              </p>
-            )}
           </div>
           <div className="detail-perks">
             <p>
-              <Truck size={19} /> Free delivery on orders ₹1,999+
+              <Truck size={19} /> Free delivery on ₹1,999+ merchandise
             </p>
             <p>
-              <RotateCcw size={18} /> Sample 7-day returns policy
+              <RotateCcw size={18} /> 7-day demo returns after delivery
             </p>
           </div>
           <details open>
-            <summary>Fabric & care</summary>
+            <summary>Fit, fabric & care</summary>
+            <p>{product.fit}</p>
             <p>
-              {product.fabric}. Gentle cold wash. Dry in shade. Sample care
-              guidance; confirm actual garment labels before launch.
+              {product.fabric}. Gentle wash as appropriate; final garment care
+              must be confirmed before retail launch.
             </p>
           </details>
           <details>
-            <summary>Shipping & returns</summary>
+            <summary>Delivery & returns</summary>
             <p>
-              Demo delivery estimate: 3–7 business days within India. This
-              prototype creates no real shipments.{" "}
-              <Link href="/shipping">Read our demo policy.</Link>
+              Demo delivery estimate: 3–7 business days within India. ₹99
+              delivery below ₹1,999. Unworn items with tags may be requested for
+              return within seven days of recorded delivery.
             </p>
+            <Link href="/returns" className="text-link">
+              Read the sample policy →
+            </Link>
           </details>
         </div>
       </div>
-      <dialog ref={guide} className="size-dialog" aria-label="Size guide">
-        <div className="flex justify-between">
-          <h2>A little help finding your fit</h2>
-          <button
-            className="icon-button"
-            aria-label="Close size guide"
-            onClick={() => guide.current?.close()}
-          >
-            <X />
-          </button>
-        </div>
-        <p>
-          Sample body measurements in centimetres. Measure around the fullest
-          part of your bust and hips, and your natural waist.
-        </p>
-        <table>
-          <thead>
-            <tr>
-              <th>Size</th>
-              <th>Bust</th>
-              <th>Waist</th>
-              <th>Hips</th>
-            </tr>
-          </thead>
-          <tbody>
-            {["XS", "S", "M", "L", "XL"].map((s, i) => (
-              <tr key={s}>
-                <td>{s}</td>
-                <td>{80 + i * 5}</td>
-                <td>{62 + i * 5}</td>
-                <td>{86 + i * 5}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-        <p className="muted">
-          Between sizes? Choose the larger size for a relaxed fit. Demo
-          measurements apply to this sample catalogue.
-        </p>
+      <div className="mobile-purchase-bar">
+        <strong>{money(product.price)}</strong>
+        <button
+          className="button"
+          onClick={() =>
+            buy.current?.scrollIntoView({ behavior: "smooth", block: "center" })
+          }
+        >
+          Choose size
+        </button>
+      </div>
+      <dialog
+        ref={zoom}
+        className="zoom-dialog"
+        aria-label="Product image zoom"
+      >
+        <button
+          className="icon-button"
+          aria-label="Close image zoom"
+          onClick={() => zoom.current?.close()}
+        >
+          <X />
+        </button>
+        <Image
+          src={image}
+          alt={`${product.name}, enlarged view`}
+          width={1000}
+          height={1400}
+          sizes="90vw"
+        />
       </dialog>
     </div>
+  );
+}
+export function RecentlyViewed({ products }: { products: Product[] }) {
+  const state = useStore();
+  const list = state.recent.flatMap((id) => {
+    const p = products.find((p) => p.id === id);
+    return p ? [p] : [];
+  });
+  if (!list.length) return null;
+  return (
+    <section className="container section">
+      <div className="section-heading">
+        <div>
+          <p className="eyebrow">YOUR STYLE TRAIL</p>
+          <h2>Recently viewed</h2>
+        </div>
+      </div>
+      <div className="product-grid">
+        {list.slice(0, 4).map((p) => (
+          <ProductCard key={p.id} product={p} />
+        ))}
+      </div>
+    </section>
   );
 }

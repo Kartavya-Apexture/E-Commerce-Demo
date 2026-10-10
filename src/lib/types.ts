@@ -12,10 +12,20 @@ export const imageLibrary = [
   "/images/fashion-2.jpg",
   "/images/fashion-3.jpg",
   "/images/fashion-5.jpg",
+  ...[0, 1, 3, 4, 5, 7, 8, 9, 11, 12, 13, 15, 17, 18, 19, 23, 24, 25].map(
+    (i) => `/images/catalogue/look-${i}.jpg`,
+  ),
 ];
 export type Category = (typeof categories)[number];
 export type Size = (typeof sizes)[number];
-export type Variant = { id: string; size: Size; colour: string; stock: number };
+export type Variant = {
+  id: string;
+  size: Size;
+  colour: string;
+  stock: number;
+  active?: boolean;
+};
+export type ProductGallery = { colour: string; images: string[] };
 export type Product = {
   id: string;
   slug: string;
@@ -28,6 +38,10 @@ export type Product = {
   fabric: string;
   archived: boolean;
   variants: Variant[];
+  createdAt: string;
+  featured: boolean;
+  fit: string;
+  galleries: ProductGallery[];
 };
 export type CartLine = {
   productId: string;
@@ -72,14 +86,64 @@ export type Order = {
   total: number;
   createdAt: string;
   items: OrderItem[];
+  discount?: number;
+  couponCode?: string | null;
+  deliveredAt?: string | null;
+  history?: { status: OrderStatus; at: string | null }[];
+};
+export type Coupon = {
+  code: string;
+  kind: "percent" | "fixed";
+  amount: number;
+  minimum: number;
+  cap: number;
+  active: boolean;
+};
+export const returnStatuses = [
+  "Requested",
+  "Approved",
+  "Received",
+  "Rejected",
+] as const;
+export type ReturnStatus = (typeof returnStatuses)[number];
+export type ReturnRequest = {
+  id: string;
+  orderId: string;
+  reason: string;
+  status: ReturnStatus;
+  createdAt: string;
+  updatedAt: string;
+};
+export type SupportMessage = {
+  id: string;
+  name: string;
+  email: string;
+  subject: string;
+  message: string;
+  status: "New" | "Resolved";
+  createdAt: string;
+};
+export type Quote = {
+  subtotal: number;
+  shipping: number;
+  discount: number;
+  total: number;
+  couponCode: string | null;
 };
 export type Result<T> = { ok: true; value: T } | { ok: false; error: string };
 export function money(paise: number) {
   return new Intl.NumberFormat("en-IN", {
     style: "currency",
     currency: "INR",
-    maximumFractionDigits: 0,
+    minimumFractionDigits: paise % 100 ? 2 : 0,
+    maximumFractionDigits: 2,
   }).format(paise / 100);
+}
+export function variantImage(product: Product, colour: string) {
+  return (
+    product.galleries.find((g) => g.colour === colour)?.images[0] ||
+    product.image
+  );
 }
 export function delivery(subtotal: number) {
   return subtotal >= 199900 ? 0 : 9900;
