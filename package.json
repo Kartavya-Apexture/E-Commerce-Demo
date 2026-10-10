@@ -12,7 +12,8 @@
     "seed": "tsx scripts/demo.ts",
     "demo:reset": "tsx scripts/demo.ts --reset",
     "test:e2e": "playwright test",
-    "test:commerce": "tsx --test tests/commerce.test.ts"
+    "test:commerce": "tsx --test tests/commerce.test.ts tests/browser-commerce.test.ts",
+    "test:browser-demo": "playwright test --config playwright.browser.config.ts"
   },
   "dependencies": {
     "better-sqlite3": "12.11.1",

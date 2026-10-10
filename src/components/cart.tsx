@@ -22,7 +22,7 @@ import {
   addressSchema,
   type SavedAddress,
 } from "./browser-store";
-import { checkout, getQuote } from "@/app/actions";
+import { checkout, getQuote } from "@/lib/client-actions";
 import {
   delivery,
   money,

@@ -1,5 +1,4 @@
 import { randomBytes, randomUUID } from "node:crypto";
-import { z } from "zod";
 import { db, productById, orders, coupons, orderByToken } from "./db";
 import {
   delivery,
@@ -14,33 +13,8 @@ import {
   variantImage,
 } from "./types";
 
-export const checkoutSchema = z.object({
-  requestId: z.string().uuid(),
-  name: z.string().trim().min(2).max(100),
-  email: z.email().max(200),
-  phone: z
-    .string()
-    .regex(/^[6-9]\d{9}$/, "Enter a valid 10-digit Indian mobile number."),
-  address: z.string().trim().min(8).max(300),
-  city: z.string().trim().min(2).max(80),
-  state: z.string().trim().min(2).max(80),
-  pin: z.string().regex(/^[1-9]\d{5}$/, "Enter a valid six-digit PIN code."),
-  payment: z.enum(["cod", "online"]),
-  simulateFailure: z.boolean().default(false),
-  couponCode: z.string().trim().max(30).optional(),
-  reviewedTotal: z.number().int().nonnegative().optional(),
-  lines: z
-    .array(
-      z.object({
-        productId: z.string(),
-        variantId: z.string(),
-        quantity: z.number().int().min(1).max(10),
-        price: z.number().int().positive(),
-      }),
-    )
-    .min(1)
-    .max(30),
-});
+export { checkoutSchema } from "./validation";
+import { checkoutSchema } from "./validation";
 export function placeOrder(input: unknown): Result<{ token: string }> {
   const parsed = checkoutSchema.safeParse(input);
   if (!parsed.success)

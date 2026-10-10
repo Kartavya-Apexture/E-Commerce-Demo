@@ -23,11 +23,23 @@ The preview uses `data/kg-preview.sqlite`, a separate fresh catalogue. Existing 
 
 ## Online demo on Vercel without a hosted database
 
-Vercel deployments automatically select a fresh SQLite database under the writable temporary directory, separated by deployment ID. No database account, connection string or manual environment setting is required. An existing local DEMO_DB_PATH setting is ignored on Vercel to prevent attempts to write into the read-only application directory. The 24-product catalogue and offers are seeded on each new instance.
+Vercel automatically runs a **browser-only demo**. The storefront and admin share versioned browser storage, so orders, inventory, coupons, returns, product edits and support messages survive page refreshes and server restarts. No database account, connection string, new dependency, or manual environment setting is required. The existing local SQLite mode is preserved on your computer.
 
-This is disposable demonstration storage. Orders, inventory edits, support messages and admin sessions can reset when an instance is replaced. Different instances do not share data, so an order or admin login may be unavailable on another instance. Browser cart/wishlist remain stored on the shopper’s browser. An online notice explains these limits; use sample details. Use the local preview for a repeatable complete client walkthrough with persistent data. This temporary mode fixes page loading but does not provide reliable shared storage for real commerce.
+Use the **same browser and site address** for shopping and admin. Each browser has an independent demo store. Private order links work only in the browser that owns their saved data; copying them to another device does not transfer an order. Clearing site data or choosing Reset demo removes that browser's demo data. Use the footer's Clear my demo data control to clear the separate bag, wishlist and saved address/history.
 
-No database secrets need to be added for this mode. Online admin cookies use HTTPS automatically. Local database paths and persistence are unchanged.
+Use sample details only. Browser data is readable/editable by its owner, and the demo admin login is an interface demonstration, not production authentication. It expires after six hours in the tab session. No customer data is submitted to a database. The browser demo holds up to 100 orders, 100 returns/messages and 200 products, and reports storage errors without claiming a successful checkout. Tabs use Web Locks where available to serialise stock changes. A hosted shared data service would be needed for a real multi-user shop.
+
+To test this mode locally in PowerShell:
+
+```powershell
+$env:BROWSER_DEMO="1"
+npm run build
+npm run test:browser-demo
+Remove-Item Env:BROWSER_DEMO
+npm run build
+```
+
+The final build restores normal local SQLite mode. Do not set BROWSER_DEMO for regular local use. Vercel selects browser mode automatically using its existing platform environment.
 
 ## Install and start
 

@@ -45,6 +45,12 @@ Runtime dependencies remain unchanged. Real payments, delivery, email and refund
 
 ## Vercel temporary demo fix
 
-The runtime failure was ENOENT creating /var/task/data. Database selection now uses Node’s temporary directory on Vercel, including when an old relative DEMO_DB_PATH is configured. Local paths remain unchanged. Added tests verify deployment-path isolation/traversal handling and actual temporary-database seeding, checkout and duplicate protection across warm processes. Temporary files are neither persistent nor shared across Vercel instances; the online UI and README state this limit.
+The runtime failure was ENOENT creating /var/task/data. Database selection now uses Node’s temporary directory on Vercel, including when an old relative DEMO_DB_PATH is configured. Local paths remain unchanged. Added tests verify deployment-path isolation/traversal handling and actual temporary-database seeding, checkout and duplicate protection across warm processes. Temporary files are neither persistent nor shared across Vercel instances. This initial loading fix was superseded by the browser-only demo described below.
 
 Fix validation: lint, strict typecheck and production build passed; 26 commerce tests and 18 production browser tests passed. With VERCEL=1 and a deliberately unwritable local database override, homepage, shop, product, checkout and admin login returned HTTP 200 with the temporary-storage notice. The final build has no filesystem tracing warning.
+
+## Browser-only Vercel fix
+
+A live checkout exposed the temporary-SQLite limitation: the separate order function could not read the checkout function’s file. Online mode now uses one validated browser snapshot, with an atomic order/stock write, duplicate protection, explicit storage errors, Web Locks for cross-tab writes, and isolated demo admin sessions. The storefront and admin share that browser data; local SQLite paths, business rules and authorization remain unchanged. Home/order views and validation schemas are shared to preserve the original UI and form rules. No additional runtime dependencies were introduced.
+
+Validation: 31 commerce tests; 18 original production browser tests; 7 browser-demo tests covering checkout/reload/history/admin delivery/return receipt, product edits, support resolution, separate-browser privacy, admin login gating, failed persistence, images and 375/768/1440px layouts. Lint, strict typecheck and production builds in both modes passed. Tests and screenshots use ignored artifacts and isolated browser contexts. Browser-only admin is a demo gate, not production access control.

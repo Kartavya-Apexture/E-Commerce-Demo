@@ -45,3 +45,12 @@ The upgrade added 15 separately staged web searches, followed by fetching the re
 | 15  | Strict TypeScript and refreshed data  | [TypeScript strictness](https://www.typescriptlang.org/tsconfig/noImplicitAny.html), [revalidation](https://nextjs.org/docs/app/api-reference/functions/revalidatePath): no explicit any, validate unknown inputs, refresh affected routes. |
 
 One Next.js application, one local SQLite database, and small interactive components remain the architecture. No external search, payment, authentication or state-management service was added.
+
+## No-database online demo follow-up
+
+- Vercel writable temporary files cannot provide shared order storage: https://vercel.com/kb/guide/is-sqlite-supported-in-vercel
+- Next.js 16 Proxy rewrites preserve the public shopping URLs: https://nextjs.org/docs/app/api-reference/file-conventions/proxy
+- Browser storage and cross-tab storage events: https://developer.mozilla.org/en-US/docs/Web/API/Web_Storage_API/Using_the_Web_Storage_API
+- Web Locks serialise writes from tabs sharing a browser: https://developer.mozilla.org/en-US/docs/Web/API/Web_Locks_API
+
+The first temporary-file fix loaded pages but failed a live cross-function order lookup. Replaced the online user flow with browser-owned data while keeping the persistent local SQLite implementation.

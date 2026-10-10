@@ -18,3 +18,7 @@ For an alternative cancellation demonstration, place a new COD order and cancel 
 Before/after screenshots are local files under `artifacts`: `before-storefront-1440.png`, `kg-storefront-1440.png`, `kg-storefront-375.png`, and `kg-admin-1440.png`. Test screenshots include sample test activity. A clean preview screenshot is `kg-preview-1440.png`.
 
 All customer actions persist locally. No real payment, email, shipment or refund occurs. Use sample details during the presentation.
+
+## Online browser demo
+
+Open the Vercel site and use the same browser for checkout and admin. No hosted database is required. Refresh the order to demonstrate persistence, sign in with the documented demo account, change fulfilment status, then return to the customer link. Complete a return request and receipt or send a support message. The top Reset demo control restores the sample catalogue and clears this browser’s demo orders/edits/messages; the footer clears the separate bag/wishlist/history/details. Other browsers have their own store and cannot open these orders. Only use sample contact details.

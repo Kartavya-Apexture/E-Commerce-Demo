@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Header, Footer } from "@/components/store-shell";
 import "./globals.css";
 import localFont from "next/font/local";
-import { products } from "@/lib/db";
+import { BrowserDemo } from "@/components/browser-demo";
 const inter = localFont({
   src: "../../public/fonts/inter-variable.ttf",
   variable: "--font-inter",
@@ -23,27 +23,28 @@ export const metadata: Metadata = {
     "Discover your next favourite. A boutique women’s western wear shopping demo.",
   icons: { icon: "/icon.svg" },
   robots: { index: false, follow: false },
+  referrer: "no-referrer",
 };
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const browser =
+    process.env.VERCEL === "1" || process.env.BROWSER_DEMO === "1";
+  const catalogue = browser ? [] : (await import("@/lib/db")).products();
   return (
     <html lang="en">
       <body className={`${inter.variable} ${playfair.variable}`}>
-        {process.env.VERCEL === "1" && (
-          <aside
-            className="online-demo-note"
-            aria-label="Online demo storage notice"
-          >
-            Online demo · Use sample details. Orders and edits are temporary and
-            may reset or differ between server instances.
-          </aside>
+        {browser ? (
+          <BrowserDemo />
+        ) : (
+          <>
+            <Header products={catalogue} />
+            <main id="main">{children}</main>
+            <Footer />
+          </>
         )}
-        <Header products={products()} />
-        <main id="main">{children}</main>
-        <Footer />
       </body>
     </html>
   );

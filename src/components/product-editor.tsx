@@ -2,7 +2,7 @@
 import { useActionState, useState } from "react";
 import Image from "next/image";
 import { Plus, Trash2 } from "lucide-react";
-import { saveProduct } from "@/app/actions";
+import { saveProduct } from "@/lib/client-actions";
 import {
   categories,
   sizes,

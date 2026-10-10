@@ -20,13 +20,11 @@ import {
   requireAdmin,
 } from "@/lib/auth";
 import {
-  categories,
-  sizes,
-  imageLibrary,
   statuses,
   returnStatuses,
   type Result,
 } from "@/lib/types";
+import { productSchema, contactSchema } from "@/lib/validation";
 const refresh = () => revalidatePath("/", "layout");
 export async function checkout(input: unknown) {
   const reviewed = z
@@ -56,37 +54,6 @@ export async function logout() {
   await endSession();
   redirect("/admin/login");
 }
-const imageSchema = z
-  .string()
-  .refine((v) => imageLibrary.includes(v), "Select a supplied image.");
-const productSchema = z.object({
-  id: z.string().max(80),
-  name: z.string().trim().min(3).max(120),
-  category: z.enum(categories),
-  price: z.coerce.number().positive().max(100000),
-  originalPrice: z.coerce.number().min(0).max(100000),
-  description: z.string().trim().min(10).max(2000),
-  fabric: z.string().trim().min(3).max(200),
-  fit: z.string().trim().min(3).max(300),
-  groups: z
-    .array(
-      z.object({
-        colour: z.string().trim().min(2).max(40),
-        images: z.array(imageSchema).min(1).max(5),
-        variants: z
-          .array(
-            z.object({
-              id: z.string().max(100),
-              size: z.enum(sizes),
-              stock: z.coerce.number().int().min(0).max(10000),
-            }),
-          )
-          .length(5),
-      }),
-    )
-    .min(1)
-    .max(8),
-});
 export async function saveProduct(
   _state: Result<string> | null,
   form: FormData,
@@ -250,12 +217,6 @@ export async function resolveMessage(form: FormData) {
   );
   refresh();
 }
-const contactSchema = z.object({
-  name: z.string().trim().min(2).max(100),
-  email: z.email().max(200),
-  subject: z.string().trim().min(3).max(120),
-  message: z.string().trim().min(10).max(2000),
-});
 export async function contact(
   _state: Result<string> | null,
   form: FormData,

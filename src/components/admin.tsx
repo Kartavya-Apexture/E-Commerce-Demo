@@ -13,7 +13,12 @@ import {
   RotateCcw,
   MessageSquare,
 } from "lucide-react";
-import { login, logout, updateStatus, updateReturn } from "@/app/actions";
+import {
+  login,
+  logout,
+  updateStatus,
+  updateReturn,
+} from "@/lib/client-actions";
 import type { Order, Result, ReturnRequest } from "@/lib/types";
 export { ProductEditor as ProductForm } from "./product-editor";
 export function AdminShell({ children }: { children: React.ReactNode }) {
