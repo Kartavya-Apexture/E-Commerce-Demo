@@ -21,6 +21,14 @@ A working women’s western wear storefront and admin panel using Next.js 16.4, 
 
 The preview uses `data/kg-preview.sqlite`, a separate fresh catalogue. Existing data in `data/aurelle.sqlite` was preserved. Old admin sessions were invalidated during migration.
 
+## Online demo on Vercel without a hosted database
+
+Vercel deployments automatically select a fresh SQLite database under the writable temporary directory, separated by deployment ID. No database account, connection string or manual environment setting is required. An existing local DEMO_DB_PATH setting is ignored on Vercel to prevent attempts to write into the read-only application directory. The 24-product catalogue and offers are seeded on each new instance.
+
+This is disposable demonstration storage. Orders, inventory edits, support messages and admin sessions can reset when an instance is replaced. Different instances do not share data, so an order or admin login may be unavailable on another instance. Browser cart/wishlist remain stored on the shopper’s browser. An online notice explains these limits; use sample details. Use the local preview for a repeatable complete client walkthrough with persistent data. This temporary mode fixes page loading but does not provide reliable shared storage for real commerce.
+
+No database secrets need to be added for this mode. Online admin cookies use HTTPS automatically. Local database paths and persistence are unchanged.
+
 ## Install and start
 
 Use Node.js 22.13 or a compatible supported Node version and npm. The SQLite driver is pinned to 12.11.1 for this Windows runtime. All images and fonts are supplied locally.
@@ -80,4 +88,4 @@ See [quality results](docs/QUALITY-CHECKS.md), [client walkthrough](docs/CLIENT-
 
 ## Prototype boundaries
 
-Payments, delivery estimates, policies, fabric information and sizing are demonstrations. No real payments, shipments or refunds are created. Customer accounts, uploads, notifications, courier integrations, GST invoices, loyalty, unsupported reviews and public hosting remain outside this upgrade. Replace editorial photographs with the client’s actual garment photography before launch. The striped shirt and black skirt share one outfit photograph; other fresh garments have distinct credited photographs.
+Payments, delivery estimates, policies, fabric information and sizing are demonstrations. No real payments, shipments or refunds are created. Customer accounts, uploads, notifications, courier integrations, GST invoices, loyalty, unsupported reviews remain outside this upgrade. Replace editorial photographs with the client’s actual garment photography before launch. The striped shirt and black skirt share one outfit photograph; other fresh garments have distinct credited photographs.

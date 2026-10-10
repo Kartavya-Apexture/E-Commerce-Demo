@@ -1,4 +1,12 @@
 @import "tailwindcss";
+.online-demo-note {
+  padding: 10px 20px;
+  background: #f4e9ed;
+  color: #592031;
+  text-align: center;
+  font-size: 12px;
+  line-height: 1.6;
+}
 :root {
   --ink: #222426;
   --muted: #63676c;

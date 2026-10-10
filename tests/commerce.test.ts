@@ -5,6 +5,7 @@ import { mkdirSync, mkdtempSync } from "node:fs";
 import { execFileSync } from "node:child_process";
 import path from "node:path";
 import Database from "better-sqlite3";
+import { databasePath } from "../src/lib/database-path";
 
 mkdirSync("data", { recursive: true });
 process.env.DEMO_DB_PATH = path.join(
@@ -294,6 +295,58 @@ test("fresh catalogue has 24 distinct names and meaningful metadata", () => {
   assert.equal(new Set(products().map((p) => p.name)).size, 24);
   assert.ok(products().every((p) => p.galleries.length && p.createdAt));
   assert.equal(products().filter((p) => p.featured).length, 8);
+});
+test("Vercel uses temporary storage even with a local database override", () => {
+  const temp = path.resolve("data/simulated-tmp");
+  const actual = databasePath(
+    {
+      VERCEL: "1",
+      VERCEL_DEPLOYMENT_ID: "deployment-1",
+      DEMO_DB_PATH: "data/do-not-touch.sqlite",
+    },
+    temp,
+  );
+  assert.equal(
+    actual,
+    path.join(temp, "kg-store-demo", "deployment-1", "demo.sqlite"),
+  );
+  assert.equal(
+    databasePath({ DEMO_DB_PATH: "data/local.sqlite" }),
+    path.resolve("data/local.sqlite"),
+  );
+  assert.equal(databasePath({}), path.resolve("data/aurelle.sqlite"));
+  assert.ok(
+    databasePath(
+      { VERCEL: "1", VERCEL_DEPLOYMENT_ID: "../../invalid" },
+      temp,
+    ).startsWith(path.join(temp, "kg-store-demo") + path.sep),
+  );
+});
+test("Vercel cold start seeds a writable demo and warm processes retain checkout", () => {
+  const deployment = `test-${randomUUID()}`;
+  const checkout = JSON.stringify(input());
+  const script = `import {db,products,productById,orders} from './src/lib/db.ts'; import {placeOrder} from './src/lib/commerce.ts'; const result=placeOrder(${checkout}); console.log(JSON.stringify({ok:result.ok,count:products().length,orders:orders().length,stock:productById('p2').variants.find(v=>v.id==='p2-M').stock})); db.close();`;
+  for (let restart = 0; restart < 2; restart++) {
+    const output = execFileSync(
+      process.execPath,
+      ["--import", "tsx", "--input-type=module", "-e", script],
+      {
+        encoding: "utf8",
+        env: {
+          ...process.env,
+          VERCEL: "1",
+          VERCEL_DEPLOYMENT_ID: deployment,
+          DEMO_DB_PATH: "/var/task/data/not-writable.sqlite",
+        },
+      },
+    );
+    assert.deepEqual(JSON.parse(output) as unknown, {
+      ok: true,
+      count: 24,
+      orders: 4,
+      stock: 7,
+    });
+  }
 });
 test("coupons enforce thresholds, caps, case handling and exact paise", () => {
   assert.equal(discountFor(99899, "KG10").ok, false);

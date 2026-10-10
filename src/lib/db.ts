@@ -13,9 +13,12 @@ import {
   type SupportMessage,
 } from "./types";
 import { sampleCatalogue } from "./catalogue";
-const dbPath = path.resolve(
-  /* turbopackIgnore: true */ process.env.DEMO_DB_PATH || "data/aurelle.sqlite",
-);
+import { databasePath } from "./database-path";
+const dbPath = databasePath({
+  VERCEL: process.env.VERCEL,
+  VERCEL_DEPLOYMENT_ID: process.env.VERCEL_DEPLOYMENT_ID,
+  DEMO_DB_PATH: /* turbopackIgnore: true */ process.env.DEMO_DB_PATH,
+});
 mkdirSync(path.dirname(dbPath), { recursive: true });
 export const db = new Database(dbPath);
 db.pragma("journal_mode = WAL");

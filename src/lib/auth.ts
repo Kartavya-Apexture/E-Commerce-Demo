@@ -23,7 +23,7 @@ export async function createSession() {
   (await cookies()).set("kgstore-admin", token, {
     httpOnly: true,
     sameSite: "lax",
-    secure: process.env.DEMO_HTTPS === "true",
+    secure: process.env.VERCEL === "1" || process.env.DEMO_HTTPS === "true",
     path: "/",
     maxAge: 8 * 3600,
   });

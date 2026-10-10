@@ -42,3 +42,9 @@ This is Chromium coverage, not a complete multi-browser or screen-reader audit.
 - Synced reference files and other F: projects: untouched.
 
 Runtime dependencies remain unchanged. Real payments, delivery, email and refunds remain outside this local prototype. Local photo/font sources and licences are documented in IMAGE-CREDITS.md.
+
+## Vercel temporary demo fix
+
+The runtime failure was ENOENT creating /var/task/data. Database selection now uses Node’s temporary directory on Vercel, including when an old relative DEMO_DB_PATH is configured. Local paths remain unchanged. Added tests verify deployment-path isolation/traversal handling and actual temporary-database seeding, checkout and duplicate protection across warm processes. Temporary files are neither persistent nor shared across Vercel instances; the online UI and README state this limit.
+
+Fix validation: lint, strict typecheck and production build passed; 26 commerce tests and 18 production browser tests passed. With VERCEL=1 and a deliberately unwritable local database override, homepage, shop, product, checkout and admin login returned HTTP 200 with the temporary-storage notice. The final build has no filesystem tracing warning.

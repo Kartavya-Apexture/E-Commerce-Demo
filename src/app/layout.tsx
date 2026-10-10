@@ -32,6 +32,15 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${inter.variable} ${playfair.variable}`}>
+        {process.env.VERCEL === "1" && (
+          <aside
+            className="online-demo-note"
+            aria-label="Online demo storage notice"
+          >
+            Online demo · Use sample details. Orders and edits are temporary and
+            may reset or differ between server instances.
+          </aside>
+        )}
         <Header products={products()} />
         <main id="main">{children}</main>
         <Footer />
